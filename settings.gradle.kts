@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AnalogClock"
 include(":app")
- 
+include(":analogclock")
