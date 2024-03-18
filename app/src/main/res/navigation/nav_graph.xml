@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/previewFragment">
+
+    <fragment
+        android:id="@+id/previewFragment"
+        android:name="com.example.analogclock.preview.PreviewFragment"
+        android:label="FirstPreviewFragment" >
+        <action
+            android:id="@+id/action_previewFragment_to_fullSizeWatchFragment"
+            app:destination="@id/fullSizeWatchFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@android:anim/fade_out" />
+    </fragment>
+    <fragment
+        android:id="@+id/fullSizeWatchFragment"
+        android:name="com.example.analogclock.preview.FullSizeWatchFragment"
+        android:label="SecondPreviewFragment" />
+</navigation>

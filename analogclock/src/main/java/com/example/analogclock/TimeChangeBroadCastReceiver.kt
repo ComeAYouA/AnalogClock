@@ -9,7 +9,7 @@ class TimeChangeBroadCastReceiver(
 ): BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (Intent.ACTION_TIMEZONE_CHANGED == intent?.action){
+        if (intent != null){
             val timeZone = intent.extras?.getString("time-zone")!!
             onTimeZoneChanged(timeZone)
         }

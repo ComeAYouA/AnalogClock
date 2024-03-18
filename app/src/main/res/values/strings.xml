@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">AnalogClock</string>
+    <string name="next_preview_button_text">Full-size watch</string>
+    <string name="system_time_zone">Системное время</string>
+    <string name="choose_time_zone">Выбрать временную зону</string>
 </resources>

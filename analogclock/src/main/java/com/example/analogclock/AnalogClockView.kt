@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Canvas
+import android.os.Bundle
+import android.os.Parcelable
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
 import android.util.Log
@@ -14,24 +16,41 @@ import java.util.TimeZone
 import kotlin.math.min
 
 
+private const val TIME_ZONE_KEY = "time_zone"
+private const val TIME_ZONE_CHANGE_KEY = "time_zone_change"
+private const val SUPER_STATE_KEY = "super-state"
+
+
 class AnalogClockView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ): View(context, attrs, defStyleAttr){
 
-    private val dial = AppCompatResources.getDrawable(context, R.drawable.ic_dial)!!
-    private val secondHand = AppCompatResources.getDrawable(context, R.drawable.ic_second_hand)!!
-    private val minuteHand = AppCompatResources.getDrawable(context, R.drawable.ic_minute_hand)!!
-    private val hourHand = AppCompatResources.getDrawable(context, R.drawable.ic_hour_hand)!!
+    private val dial = AppCompatResources.getDrawable(context, R.drawable.dial)!!
+    private val secondHand = AppCompatResources.getDrawable(context, R.drawable.second_hand)!!
+    private val minuteHand = AppCompatResources.getDrawable(context, R.drawable.minute_hand)!!
+    private val hourHand = AppCompatResources.getDrawable(context, R.drawable.hour_hand)!!
 
     private val dialWidth = dial.intrinsicWidth
     private val dialHeight = dial.intrinsicHeight
 
     private val time = Calendar.getInstance()
-    private var seconds = time.get(Calendar.SECOND)
-    private var minutes = time.get(Calendar.MINUTE)
-    private var hours = time.get(Calendar.HOUR)
+    private var timeZoneChanged = false
+    var timeZone: TimeZone
+        get() = time.timeZone
+        set(value) {
+            time.timeZone = value
+            timeZoneChanged = true
+            onTimeChanged()
+        }
+    var seconds = time.get(Calendar.SECOND)
+        private set
+    var minutes = time.get(Calendar.MINUTE)
+        private set
+    var hours = time.get(Calendar.HOUR)
+        private set
+
 
     private val clockTick = object: Runnable{
         override fun run() {
@@ -44,14 +63,12 @@ class AnalogClockView @JvmOverloads constructor(
 
     private val timeChangeReceiver = TimeChangeBroadCastReceiver(
         onTimeZoneChanged = { timeZone ->
-            time.timeZone = TimeZone.getTimeZone(timeZone)
+            if (!timeZoneChanged){
+                time.timeZone = TimeZone.getTimeZone(timeZone)
+            }
             onTimeChanged()
         }
     )
-
-    init {
-        Log.d("myTag", "view init")
-    }
 
 
     override fun onAttachedToWindow() {
@@ -67,6 +84,18 @@ class AnalogClockView @JvmOverloads constructor(
         )
 
         clockTick.run()
+    }
+
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        var superState = state
+        if (state is Bundle)
+        {
+            this.timeZone = TimeZone.getTimeZone(state.getString(TIME_ZONE_KEY))
+            this.timeZoneChanged = state.getBoolean(TIME_ZONE_CHANGE_KEY)
+            superState = state.getParcelable(SUPER_STATE_KEY)
+        }
+        super.onRestoreInstanceState(superState)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -101,10 +130,12 @@ class AnalogClockView @JvmOverloads constructor(
         val hPadding = (hSize - size) / 2
         val vPadding = (vSize - size) / 2
 
+
         drawDial(canvas, size, hPadding, vPadding)
         drawHourHand(canvas, size, hPadding, vPadding)
         drawMinuteHand(canvas, size, hPadding, vPadding)
         drawSecondHand(canvas, size, hPadding, vPadding)
+
     }
 
     private fun drawDial(
@@ -195,6 +226,15 @@ class AnalogClockView @JvmOverloads constructor(
         canvas.restore()
     }
 
+    override fun onSaveInstanceState(): Parcelable? {
+        val bundle = Bundle().apply {
+            putString(TIME_ZONE_KEY, timeZone.id)
+            putBoolean(TIME_ZONE_CHANGE_KEY, timeZoneChanged)
+            putParcelable(SUPER_STATE_KEY, super.onSaveInstanceState())
+        }
+        return bundle
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
 
@@ -202,7 +242,7 @@ class AnalogClockView @JvmOverloads constructor(
         removeCallbacks(clockTick)
     }
 
-    fun onTimeChanged(){
+    private fun onTimeChanged(){
         time.timeInMillis = System.currentTimeMillis()
 
         seconds = time.get(Calendar.SECOND)
