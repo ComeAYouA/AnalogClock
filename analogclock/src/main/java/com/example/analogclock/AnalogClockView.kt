@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.text.format.DateUtils.SECOND_IN_MILLIS
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import java.util.Calendar
@@ -226,7 +225,7 @@ class AnalogClockView @JvmOverloads constructor(
         canvas.restore()
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle().apply {
             putString(TIME_ZONE_KEY, timeZone.id)
             putBoolean(TIME_ZONE_CHANGE_KEY, timeZoneChanged)
