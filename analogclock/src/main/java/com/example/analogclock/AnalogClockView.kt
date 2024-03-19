@@ -64,7 +64,7 @@ class AnalogClockView @JvmOverloads constructor(
     private val timeChangeReceiver = TimeChangeBroadCastReceiver(
         onTimeZoneChanged = { timeZone ->
             if (!timeZoneChanged){
-                time.timeZone = TimeZone.getTimeZone(timeZone)
+                time.timeZone = timeZone
             }
             onTimeChanged()
         }
